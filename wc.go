@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
 	"os"
 	"unicode"
 	"unicode/utf8"
@@ -34,10 +35,6 @@ func getWords(data []byte) int {
 }
 
 func main() {
-	if len(os.Args) < 2 {
-		fmt.Println("Usage <command> <command> <..> <filename>")
-		return
-	}
 
 	l := flag.Bool("l", false, "count lines")
 	w := flag.Bool("w", false, "count words")
@@ -53,11 +50,29 @@ func main() {
 		*c = true
 	}
 
-	filename := os.Args[len(os.Args)-1]
-
-	data, err := os.ReadFile(filename)
+	info, err := os.Stdin.Stat()
 	if err != nil {
-		fmt.Println("Error: ", err)
+		fmt.Println("Error:", err)
+		return
+	}
+
+	var data []byte
+
+	if (info.Mode() & os.ModeCharDevice) == 0 {
+		data, err = io.ReadAll(os.Stdin)
+		if err != nil {
+			fmt.Println("Error reading stdin:", err)
+			return
+		}
+	} else if len(flag.Args()) > 0 {
+		filename := flag.Args()[0]
+		data, err = os.ReadFile(filename)
+		if err != nil {
+			fmt.Println("Error reading file:", err)
+			return
+		}
+	} else {
+		fmt.Println("Usage: <command> [options] <filename>")
 		return
 	}
 
