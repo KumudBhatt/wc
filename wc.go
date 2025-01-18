@@ -34,6 +34,14 @@ func getWords(data []byte) int {
 	return words
 }
 
+func getChars(data []byte) int {
+	return utf8.RuneCount(data)
+}
+
+func getBytes(data []byte) int {
+	return len(data)
+}
+
 func main() {
 
 	l := flag.Bool("l", false, "count lines")
@@ -80,12 +88,12 @@ func main() {
 		fmt.Println(getLines(data))
 	}
 	if *c {
-		fmt.Println(len(data))
+		fmt.Println(getBytes(data))
 	}
 	if *w {
 		fmt.Println(getWords(data))
 	}
 	if *m {
-		fmt.Println(utf8.RuneCount(data))
+		fmt.Println(getChars(data))
 	}
 }
